@@ -39,7 +39,6 @@ import           TidalDoc                      (FunctionInfo (..),
                                                 formatTidalFunction,
                                                 tidalDocsVar)
 
-
 ---------------------------------------------------------------------------------
 -- server
 
@@ -289,5 +288,3 @@ readDoc doc = do
                 else do
                     content <- liftIO $ readFile path
                     pure $ doc { docContent = Just $ T.pack content }
-
----------------------------------------------------------------------------------
