@@ -100,19 +100,6 @@ handlers = do
 
         , notificationHandler LSP.SMethod_TextDocumentDidChange $ \msg -> do
             pure ()
-            -- liftIO $ logToFile "Got DidChange message" Info
-            -- let doc =
-            --       msg
-            --         ^. LSP.params
-            --           . LSP.textDocument
-            --           . LSP.uri
-            --           . to LSP.toNormalizedUri
-            -- mdoc <- getVirtualFile doc
-            -- case mdoc of
-            --   Just (VirtualFile _lsp_version _file_version _file_text) ->
-            --     liftIO $ logToFile ("Change in virtual file : " ++ show mdoc) Log
-            --   Nothing -> do
-            --     liftIO $ logToFile ("Didn't find file in VFS: " ++ show doc) Warning
 
         , requestHandler LSP.SMethod_TextDocumentHover $ \req responder -> do
             -- liftIO $ logToFile "received textDocument/hover request" Info
