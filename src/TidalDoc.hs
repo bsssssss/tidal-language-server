@@ -64,6 +64,7 @@ tidalExtensions =
     , EnableExtension BangPatterns
     , EnableExtension MultiParamTypeClasses
     , EnableExtension FlexibleContexts
+    , EnableExtension InstanceSigs
     ]
 
 ---------------------------------------------------------------------------------
