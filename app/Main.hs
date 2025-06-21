@@ -5,26 +5,20 @@
 {-# LANGUAGE NamedFieldPuns        #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE TypeOperators         #-}
-{-# OPTIONS_GHC -Wno-name-shadowing #-}
-{-# LANGUAGE LambdaCase            #-}
+{-# OPTIONS_GHC -Wno-name-shadowing       #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Use isJust" #-}
+{-# HLINT ignore "Use isJust"             #-}
 
-module Main
-    ( main
-    )
-    where
-
----------------------------------------------------------------------------------
+module Main (main) where
 
 import           Control.Concurrent.STM        (readTVarIO)
 import           Control.Lens                  hiding (Iso)
-import           Control.Monad
+-- import           Control.Monad
 import           Control.Monad.IO.Class
 import           Data.List                     (sortOn)
 import           Data.Text                     (Text)
 import qualified Data.Text                     as T
-import qualified Language.LSP.Protocol.Lens    as LSP
+-- import qualified Language.LSP.Protocol.Lens    as LSP
 import qualified Language.LSP.Protocol.Message as LSP
 import qualified Language.LSP.Protocol.Types   as LSP
 import           Language.LSP.Server
@@ -34,7 +28,6 @@ import           Log                           (LogLevel (..), logFile,
 import           System.Directory              (doesFileExist)
 import           Text.FuzzyFind
 import           TidalDoc                      (FunctionInfo (..),
-                                                collectDocumentation,
                                                 findTidalFunction,
                                                 formatTidalFunction,
                                                 tidalDocsVar)
@@ -53,7 +46,6 @@ main = do
               , defaultConfig = ()
               , configSection = "demo"
               , doInitialize = \env _req -> do
-                    -- logDebug $ "Server init request received"
                     pure $ Right env
               , staticHandlers = \_caps -> handlers
               , interpretHandler = \env -> Iso (runLspT env) liftIO
@@ -91,18 +83,23 @@ handlers = do
         , notificationHandler LSP.SMethod_TextDocumentDidOpen $ \_not -> do
             let LSP.TNotificationMessage _ _ params = _not  -- Note the T prefix
                 LSP.DidOpenTextDocumentParams {_textDocument} = params  -- This extracts the params
-            liftIO $ logToFile "Got didOpen notification" Info
+            -- liftIO $ logToFile "Got didOpen notification" Info
             -- liftIO $ logToFile ("TextDocument: " ++ show _textDocument) Log
             sendNotification LSP.SMethod_WindowShowMessage $ LSP.ShowMessageParams
                 { _type_ = LSP.MessageType_Info
                 , _message = "Hello Editor :)"
                 }
 
-        , notificationHandler LSP.SMethod_TextDocumentDidChange $ \msg -> do
+        , notificationHandler LSP.SMethod_TextDocumentDidChange $ \_ -> do
+            pure ()
+
+        , notificationHandler LSP.SMethod_TextDocumentDidSave $ \_ -> do
+            pure ()
+
+        , notificationHandler LSP.SMethod_WorkspaceDidChangeConfiguration $ \_ -> do
             pure ()
 
         , requestHandler LSP.SMethod_TextDocumentHover $ \req responder -> do
-            -- liftIO $ logToFile "received textDocument/hover request" Info
             let LSP.TRequestMessage _ _ _ params = req
                 LSP.HoverParams _docId _pos _ = params
                 docInfo = mkDocInfo _docId _pos
@@ -111,12 +108,11 @@ handlers = do
             responder rsp
 
         , requestHandler LSP.SMethod_TextDocumentCompletion $ \req responder -> do
-            -- liftIO $ logToFile "received textDocument/completion request" Info
             let LSP.TRequestMessage _ _ _ params = req
                 LSP.CompletionParams _docId _position _ _ _ = params
                 docInfo = mkDocInfo _docId _position
             doc <- readDoc docInfo
-            -- liftIO $ logToFile ("Completion request for :\n" ++ show doc) Log
+
             let DocInfo _ _ _pos _text _ = doc
             word <- case docContent doc of
                 Nothing -> return Nothing
@@ -124,6 +120,7 @@ handlers = do
                     let maybeWord = getWordAtPos content _pos
                     return maybeWord
             tidalDocs <- liftIO $ readTVarIO tidalDocsVar
+
             case word of
                 Nothing -> responder $ Right $ LSP.InL $ List []
                 Just w -> do
@@ -136,8 +133,8 @@ handlers = do
                         getScore (_, Nothing, _)        = 0
 
                         sortedMatches = sortOn (negate . getScore) matches
-                    forM_ sortedMatches $ \(name, _, tidalDoc) ->
-                        liftIO $ logToFile ("[MARkDOWN DEBUG] Generated docs:\n" ++ functionDocs tidalDoc) Log
+                    -- forM_ sortedMatches $ \(name, _, tidalDoc) ->
+                    --     liftIO $ logToFile ("[MARKDOWN DEBUG] Generated docs:\n" ++ functionDocs tidalDoc) Log
 
                     let completionItems =
                             [ LSP.CompletionItem
@@ -196,7 +193,6 @@ hoverResponse doc = do
     where
         getFunctionInfo :: Text -> IO Text
         getFunctionInfo word = do
-            -- maybeFunc <- findTidalFunction (T.unpack word)
             maybeFunc <- findTidalFunction (T.unpack word)
             return $ maybe defaultMsg formatTidalFunction maybeFunc
         defaultMsg :: Text
@@ -263,7 +259,6 @@ readDoc doc = do
     case mvf of
         Just (VirtualFile _lsp_version _file_version _file_text) -> do
             let content = T.unpack $ virtualFileText $ VirtualFile _lsp_version _file_version _file_text
-            -- liftIO $ logToFile ("Updated content: " ++ content) Log
             pure $ doc { docContent = Just $ T.pack content, version = Just _file_version }
         Nothing ->  case docPath doc of
             Nothing -> do
