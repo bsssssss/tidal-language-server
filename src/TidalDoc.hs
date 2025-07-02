@@ -14,7 +14,7 @@ module TidalDoc
 import           Control.Concurrent.STM      (newTVarIO, readTVarIO)
 import           Control.Concurrent.STM.TVar (TVar)
 import           Control.Exception           (IOException, catch)
-import           Control.Monad.IO.Class      (liftIO)
+-- import           Control.Monad.IO.Class      (liftIO)
 import           Data.Char                   (isSpace)
 import           Data.List                   (find)
 import           Data.Maybe                  (mapMaybe)
@@ -22,18 +22,18 @@ import           Data.Text                   (Text)
 import qualified Data.Text                   as T
 import           GHC.IO                      (unsafePerformIO)
 import           Language.Haskell.Exts
-import           Log                         (LogLevel (..), logToFile)
+-- import           Log                         (LogLevel (..), logToFile)
 import           System.Directory
 import           System.Environment          (getEnv)
 import           System.FilePath
-import           Text.FuzzyFind              (Alignment, bestMatch, fuzzyFind)
+-- import           Text.FuzzyFind              (Alignment, bestMatch, fuzzyFind)
 
 
 ---------------------------------------------------------------------------------
 -- Get the files
 
 getTidalSrcDir :: IO (Maybe FilePath)
-getTidalSrcDir = catch (Just <$> getEnv "TIDAL_PATH") handleMissingEnv
+getTidalSrcDir = catch (Just . (</> "tidal-core/src/Sound/Tidal") <$> getEnv "TIDAL_PATH") handleMissingEnv
     where
         handleMissingEnv :: IOException -> IO (Maybe FilePath)
         handleMissingEnv _ = return Nothing
