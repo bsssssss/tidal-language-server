@@ -26,7 +26,7 @@ library
     build-depends:  
         base ^>=4.17.2.1
       , text                                   
-      , haddock-library ^>=1.11.0              
+      -- , haddock-library ^>=1.11.0              
       , haskell-src-exts                       
       , filepath
       , directory
@@ -56,7 +56,7 @@ executable tidal-ls
       , stm
       , directory
       , lens
-      , aeson
+      -- , aeson
       , fuzzyfind
 
 
