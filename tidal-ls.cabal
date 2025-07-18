@@ -24,9 +24,8 @@ library
         TidalDoc
       , Log
     build-depends:  
-        base ^>=4.17.2.1
+        base >=4.8 && <5
       , text                                   
-      -- , haddock-library ^>=1.11.0              
       , haskell-src-exts                       
       , filepath
       , directory
@@ -35,7 +34,6 @@ library
       , lsp
       , lsp-types
       , time
-
     hs-source-dirs:
        src
     default-language:
@@ -56,10 +54,7 @@ executable tidal-ls
       , stm
       , directory
       , lens
-      -- , aeson
       , fuzzyfind
-
-
     hs-source-dirs:
        app
     default-language:
