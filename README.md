@@ -1,7 +1,8 @@
 # Tidal language server
 
-This is a very experimental project that aims to provide some editor features
-when working with tidal files.
+This is a **very experimental** project that aims to provide useful editor features
+when working with tidal files, such as context aware auto-completion, hover
+documentation and linting.
 
 For now it only handle crude auto-completion and hover documentation. It does so
 by parsing Tidal's source code and extracting haddock comments about functions.
