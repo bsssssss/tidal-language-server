@@ -1,5 +1,5 @@
 cabal-version:   3.0
-name:            tidal-ls
+name:            tidal-language-server
 version:         0.1.0.0
 --               synopsis:
 --               description:
@@ -46,14 +46,14 @@ library
     default-language:
        Haskell2010
 
-executable tidal-ls
+executable tidal-language-server
     import:
         warnings
     main-is:
         Main.hs
     build-depends:
         base >=4.8 && <5
-      , tidal-ls
+      , tidal-language-server
       , directory >= 1.3.7 && < 1.4
       , filepath >= 1.4.2 && < 1.5
       , time >= 1.12.2 && < 1.13
@@ -70,7 +70,7 @@ executable tidal-ls
     default-language:
        Haskell2010
 
-test-suite tidal-ls-test
+test-suite tidal-language-server-test
     import:
         warnings
     default-language:
