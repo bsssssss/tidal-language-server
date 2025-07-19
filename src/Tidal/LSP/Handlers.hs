@@ -2,9 +2,11 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE NamedFieldPuns        #-}
 {-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE TypeOperators         #-}
 
 {-# OPTIONS_GHC -Wno-name-shadowing       #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Use isJust" #-}
 
 module Tidal.LSP.Handlers (handlers) where
 
@@ -12,19 +14,17 @@ import           Control.Concurrent.STM        (readTVarIO)
 import           Control.Lens                  hiding (Iso)
 import           Control.Monad.IO.Class
 import           Data.List                     (sortOn)
-import           Data.Text                     (Text)
 import qualified Data.Text                     as T
 import qualified Language.LSP.Protocol.Message as LSP
 import qualified Language.LSP.Protocol.Types   as LSP
 import           Language.LSP.Server
-import           Log                           (LogLevel (..), logFile,
-                                                logToFile, lspLogger)
+import           Log                           (LogLevel (..), logToFile,
+                                                lspLogger)
 import           Text.FuzzyFind
-import           Tidal.LSP.Document            (DocInfo (..), mkDocInfo, readDoc, getWordAtPos)
-import           TidalDoc                      (FunctionInfo (..),
-                                                findTidalFunction,
-                                                formatTidalFunction,
-                                                tidalDocsVar)
+import           Tidal.LSP.Document            (DocInfo (..), getWordAtPos,
+                                                mkDocInfo, readDoc)
+import           Tidal.LSP.Handlers.Hover      (handleHover)
+import           TidalDoc                      (FunctionInfo (..), tidalDocsVar)
 
 handlers :: Handlers (LspM ())
 handlers = do
@@ -53,11 +53,7 @@ handlers = do
             pure ()
 
         , requestHandler LSP.SMethod_TextDocumentHover $ \req responder -> do
-            let LSP.TRequestMessage _ _ _ params = req
-                LSP.HoverParams _docId _pos _ = params
-                docInfo = mkDocInfo _docId _pos
-            doc <- readDoc docInfo
-            rsp <- liftIO $ hoverResponse doc
+            rsp <- handleHover req
             responder rsp
 
         , requestHandler LSP.SMethod_TextDocumentCompletion $ \req responder -> do
@@ -73,7 +69,6 @@ handlers = do
                     let maybeWord = getWordAtPos content _pos
                     return maybeWord
             tidalDocs <- liftIO $ readTVarIO tidalDocsVar
-
             case word of
                 Nothing -> responder $ Right $ LSP.InL $ List []
                 Just w -> do
@@ -88,7 +83,6 @@ handlers = do
                         sortedMatches = sortOn (negate . getScore) matches
                     -- forM_ sortedMatches $ \(name, _, tidalDoc) ->
                     --     liftIO $ logToFile ("[MARKDOWN DEBUG] Generated docs:\n" ++ functionDocs tidalDoc) Log
-
                     let completionItems =
                             [ LSP.CompletionItem
                                 { _label               = T.pack name
@@ -116,8 +110,6 @@ handlers = do
                     responder $ Right $ LSP.InL $ List completionItems
         ]
 
-type HoverResult = Either (LSP.TResponseError LSP.Method_TextDocumentHover) (LSP.Hover LSP.|? LSP.Null)
-
 customMatch :: String -> String -> Maybe Alignment
 customMatch = bestMatch'
     defaultMatchScore
@@ -128,26 +120,3 @@ customMatch = bestMatch'
     2
     defaultConsecutiveBonus
     0
-
-hoverResponse :: DocInfo -> IO HoverResult
-hoverResponse doc = do
-    wordInfo <- case docContent doc of
-        Nothing -> return defaultMsg
-        Just content ->
-            case getWordAtPos content (docCursorPos doc) of
-                Nothing   -> return defaultMsg
-                Just word -> getFunctionInfo word
-    let
-        pos = docCursorPos doc
-        msg = LSP.mkMarkdown wordInfo
-        rng = LSP.Range pos pos
-        rsp = LSP.Hover (LSP.InL msg) (Just rng)
-    return (Right $ LSP.InL rsp)
-    where
-        getFunctionInfo :: Text -> IO Text
-        getFunctionInfo word = do
-            maybeFunc <- findTidalFunction (T.unpack word)
-            return $ maybe defaultMsg formatTidalFunction maybeFunc
-        defaultMsg :: Text
-        defaultMsg = "No information available"
-

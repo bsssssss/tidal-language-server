@@ -2,14 +2,17 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE OverloadedStrings     #-}
 
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Use const" #-}
+
 module Tidal.LSP.Server (server) where
 
 import           Control.Monad.IO.Class
-import qualified Language.LSP.Protocol.Types   as LSP
+import qualified Language.LSP.Protocol.Types as LSP
 import           Language.LSP.Server
-import           Log                           (LogLevel (..), logFile,
-                                                logToFile, lspLogger)
-import           Tidal.LSP.Handlers            (handlers)
+import           Log                         (LogLevel (..), logFile, logToFile)
+import           Tidal.LSP.Handlers          (handlers)
 
 server :: IO Int
 server = do

@@ -23,6 +23,7 @@ library
     exposed-modules:  
         Tidal.LSP.Server
       , Tidal.LSP.Handlers
+      , Tidal.LSP.Handlers.Hover
       , Tidal.LSP.Document
       , TidalDoc
       , Log
