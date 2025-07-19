@@ -1,10 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-
-{-# HLINT ignore "Avoid lambda" #-}
-
 module Tidal.Documentation
     ( testPath
     , FunctionInfo (..)
@@ -30,8 +26,11 @@ import           System.Environment          (getEnv)
 import           System.FilePath
 
 
----------------------------------------------------------------------------------
--- Get the files
+data FunctionInfo = FunctionInfo
+    { functionName :: String
+    , functionDocs :: String
+    , functionType :: String
+    } deriving (Show, Eq)
 
 getTidalSrcDir :: IO (Maybe FilePath)
 getTidalSrcDir = catch (Just . (</> "tidal-core/src/Sound/Tidal") <$> getEnv "TIDAL_SRC_PATH") handleMissingEnv
@@ -68,15 +67,6 @@ tidalExtensions =
     , EnableExtension InstanceSigs
     ]
 
----------------------------------------------------------------------------------
--- Core
-
-data FunctionInfo = FunctionInfo
-    { functionName :: String
-    , functionDocs :: String
-    , functionType :: String
-    } deriving (Show, Eq)
-
 tidalDocsVar :: TVar [FunctionInfo]
 tidalDocsVar = unsafePerformIO $ do
     docs <- collectDocumentation
@@ -108,11 +98,11 @@ collectFunctionsFromFile path = do
 toFunctionInfo :: Decl (a, [Comment]) -> Maybe FunctionInfo
 toFunctionInfo (TypeSig (_, comments) names type') = do
     let docs = formatDocs comments
-
+    let name' = unwords $ map prettyPrint names
     Just FunctionInfo
-        { functionName = unwords $ map prettyPrint names
+        { functionName = name'
         , functionDocs = docs
-        , functionType = "```haskell\n" ++ normalizeWhitespace (prettyPrint type') ++ "\n```"
+        , functionType = "```haskell\n" ++ name' ++ " :: " ++ normalizeWhitespace (prettyPrint type') ++ "\n```"
         }
     where
         formatDocs :: [Comment] -> String
@@ -127,9 +117,6 @@ toFunctionInfo _ = Nothing
 normalizeWhitespace :: String -> String
 normalizeWhitespace = unwords . words
 
----------------------------------------------------------------------------------
--- Find a function
-
 findTidalFunction :: String -> IO (Maybe FunctionInfo)
 findTidalFunction funcName = do
     -- docs <- collectDocumentation
@@ -141,22 +128,14 @@ lookupFunction funcName = find (\doc -> functionName doc == funcName)
 
 formatTidalFunction :: FunctionInfo -> Text
 formatTidalFunction FunctionInfo{..} = T.pack $
-            functionName ++ "\n" ++
             functionType ++ "\n" ++
-            replicate (length functionName) '-' ++ "\n\n" ++
-            "  " ++ functionDocs ++ "\n\n"
-
----------------------------------------------------------------------------------
--- print
+            "---" ++ "\n\n" ++
+            functionDocs ++ "\n\n"
 
 printFunctionInfo :: FunctionInfo -> IO ()
 printFunctionInfo FunctionInfo {..} = do
     putStrLn $ functionName ++ " :: " ++ functionType
     putStrLn $ unlines $ map ("  " ++) $ lines functionDocs
-
-
----------------------------------------------------------------------------------
--- test
 
 testFindFunction :: String -> IO ()
 testFindFunction funcName = do
@@ -180,13 +159,13 @@ testPath filename = do
             putStrLn $ replicate 80 '-' ++ "\n"
             mapM_ printFunctionInfo functionInfos
 
--- writeDocsToFile :: IO ()
--- writeDocsToFile = do
---     docs <- collectDocumentation
---     writeFile "/tmp/tidal-docs.txt" (concatMap formatDocs docs)
---     where
---         formatDocs FunctionInfo{..} =
---             functionName ++ "\n" ++
---             replicate (length functionName) '-' ++ "\n" ++
---             "Type: " ++ functionType ++ "\n\n" ++
---             functionDocs ++ "\n\n"
+writeDocsToFile :: IO ()
+writeDocsToFile = do
+    docs <- collectDocumentation
+    writeFile "/tmp/tidal-docs.txt" (concatMap formatDocs docs)
+    where
+        formatDocs FunctionInfo{..} =
+            functionName ++ "\n" ++
+            replicate (length functionName) '-' ++ "\n" ++
+            "Type: " ++ functionType ++ "\n\n" ++
+            functionDocs ++ "\n\n"
