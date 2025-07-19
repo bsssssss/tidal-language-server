@@ -14,7 +14,6 @@ module TidalDoc
 import           Control.Concurrent.STM      (newTVarIO, readTVarIO)
 import           Control.Concurrent.STM.TVar (TVar)
 import           Control.Exception           (IOException, catch)
--- import           Control.Monad.IO.Class      (liftIO)
 import           Data.Char                   (isSpace)
 import           Data.List                   (find)
 import           Data.Maybe                  (mapMaybe)
@@ -22,11 +21,9 @@ import           Data.Text                   (Text)
 import qualified Data.Text                   as T
 import           GHC.IO                      (unsafePerformIO)
 import           Language.Haskell.Exts
--- import           Log                         (LogLevel (..), logToFile)
 import           System.Directory
 import           System.Environment          (getEnv)
 import           System.FilePath
--- import           Text.FuzzyFind              (Alignment, bestMatch, fuzzyFind)
 
 
 ---------------------------------------------------------------------------------
@@ -181,13 +178,13 @@ testPath filename = do
             mapM_ printFunctionInfo functionInfos
 
 
-writeDocsToFile :: IO ()
-writeDocsToFile = do
-    docs <- collectDocumentation
-    writeFile "/tmp/tidal-docs.txt" (concatMap formatDocs docs)
-    where
-        formatDocs FunctionInfo{..} =
-            functionName ++ "\n" ++
-            replicate (length functionName) '-' ++ "\n" ++
-            "Type: " ++ functionType ++ "\n\n" ++
-            functionDocs ++ "\n\n"
+-- writeDocsToFile :: IO ()
+-- writeDocsToFile = do
+--     docs <- collectDocumentation
+--     writeFile "/tmp/tidal-docs.txt" (concatMap formatDocs docs)
+--     where
+--         formatDocs FunctionInfo{..} =
+--             functionName ++ "\n" ++
+--             replicate (length functionName) '-' ++ "\n" ++
+--             "Type: " ++ functionType ++ "\n\n" ++
+--             functionDocs ++ "\n\n"
