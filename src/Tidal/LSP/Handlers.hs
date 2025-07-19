@@ -13,7 +13,7 @@ module Tidal.LSP.Handlers (handlers) where
 import qualified Language.LSP.Protocol.Message as LSP
 import qualified Language.LSP.Protocol.Types   as LSP
 import           Language.LSP.Server
-import           Log                           (LogLevel (..), lspLogger)
+import           Tidal.Log                     (LogLevel (..), logger)
 import           Tidal.LSP.Handlers.Completion (handleCompletion)
 import           Tidal.LSP.Handlers.Hover      (handleHover)
 
@@ -22,13 +22,13 @@ handlers = do
     mconcat
         [ notificationHandler LSP.SMethod_Initialized $ \_not -> do
             -- docs <- liftIO $ readTVarIO tidalDocsVar
-            lspLogger "Language server initialized" Info
+            logger "Language server initialized" Info
 
         , notificationHandler LSP.SMethod_TextDocumentDidOpen $ \_not -> do
             let LSP.TNotificationMessage _ _ params = _not  -- Note the T prefix
                 LSP.DidOpenTextDocumentParams {_textDocument} = params  -- This extracts the params
-            lspLogger "Got didOpen notification" Info
-            lspLogger ("TextDocument: " ++ show _textDocument) Log
+            logger "Got didOpen notification" Info
+            logger ("TextDocument: " ++ show _textDocument) Log
             sendNotification LSP.SMethod_WindowShowMessage $ LSP.ShowMessageParams
                 { _type_ = LSP.MessageType_Info
                 , _message = "Hello Tidalist :)"

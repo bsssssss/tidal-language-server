@@ -5,9 +5,9 @@
 
 {-# OPTIONS_GHC -Wno-name-shadowing #-}
 
-module Log
+module Tidal.Log
     ( logToFile
-    , lspLogger
+    , logger
     , logFile
     , LogLevel(..)) where
 
@@ -21,8 +21,8 @@ import           Language.LSP.Server
 data LogLevel = Log | Info | Warning | Error
     deriving (Show, Eq, Ord)
 
-lspLogger :: String -> LogLevel -> LspM () ()
-lspLogger msg level = do
+logger :: String -> LogLevel -> LspM () ()
+logger msg level = do
     case level of
         Log -> liftIO $ logToFile msg level
         _   -> sendNotification LSP.SMethod_WindowShowMessage $ LSP.ShowMessageParams

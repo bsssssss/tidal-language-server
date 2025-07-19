@@ -26,8 +26,8 @@ library
       , Tidal.LSP.Handlers.Hover
       , Tidal.LSP.Handlers.Completion
       , Tidal.LSP.Document
-      , TidalDoc
-      , Log
+      , Tidal.Documentation
+      , Tidal.Log
     build-depends:  
         base >=4.8 && <5
       , directory >= 1.3.7 && < 1.4

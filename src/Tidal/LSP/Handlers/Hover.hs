@@ -13,10 +13,10 @@ import qualified Data.Text                     as T
 import qualified Language.LSP.Protocol.Message as LSP
 import qualified Language.LSP.Protocol.Types   as LSP
 import           Language.LSP.Server
+import           Tidal.Documentation           (findTidalFunction,
+                                                formatTidalFunction)
 import           Tidal.LSP.Document            (DocInfo (..), getWordAtPos,
                                                 mkDocInfo, readDoc)
-import           TidalDoc                      (findTidalFunction,
-                                                formatTidalFunction)
 
 type HoverResult = Either (LSP.TResponseError LSP.Method_TextDocumentHover) (LSP.Hover LSP.|? LSP.Null)
 

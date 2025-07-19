@@ -1,7 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
-module TidalDoc
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Avoid lambda" #-}
+
+module Tidal.Documentation
     ( testPath
     , FunctionInfo (..)
     , findTidalFunction

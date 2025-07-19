@@ -11,7 +11,7 @@ module Tidal.LSP.Server (server) where
 import           Control.Monad.IO.Class
 import qualified Language.LSP.Protocol.Types as LSP
 import           Language.LSP.Server
-import           Log                         (LogLevel (..), logFile, logToFile)
+import           Tidal.Log                   (LogLevel (..), logFile, logToFile)
 import           Tidal.LSP.Handlers          (handlers)
 
 server :: IO Int

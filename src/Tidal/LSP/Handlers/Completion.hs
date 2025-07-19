@@ -19,9 +19,9 @@ import qualified Language.LSP.Protocol.Message as LSP
 import qualified Language.LSP.Protocol.Types   as LSP
 import           Language.LSP.Server
 import           Text.FuzzyFind
+import           Tidal.Documentation           (FunctionInfo (..), tidalDocsVar)
 import           Tidal.LSP.Document            (DocInfo (..), getWordAtPos,
                                                 mkDocInfo, readDoc)
-import           TidalDoc                      (FunctionInfo (..), tidalDocsVar)
 
 type CompletionResult = Either (LSP.TResponseError LSP.Method_TextDocumentCompletion) ([LSP.CompletionItem] LSP.|? (LSP.CompletionList LSP.|? LSP.Null))
 
