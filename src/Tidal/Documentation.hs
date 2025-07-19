@@ -34,7 +34,7 @@ import           System.FilePath
 -- Get the files
 
 getTidalSrcDir :: IO (Maybe FilePath)
-getTidalSrcDir = catch (Just . (</> "tidal-core/src/Sound/Tidal") <$> getEnv "TIDAL_PATH") handleMissingEnv
+getTidalSrcDir = catch (Just . (</> "tidal-core/src/Sound/Tidal") <$> getEnv "TIDAL_SRC_PATH") handleMissingEnv
     where
         handleMissingEnv :: IOException -> IO (Maybe FilePath)
         handleMissingEnv _ = return Nothing
@@ -44,7 +44,7 @@ resolveTidalFile filename = do
     maybeDir <- getTidalSrcDir
     case maybeDir of
         Just dir -> return (dir </> filename)
-        Nothing  -> error "TIDAL_PATH not set?"
+        Nothing  -> error "TIDAL_SRC_PATH not in PATH"
 
 getTidalSourceFiles :: IO [FilePath]
 getTidalSourceFiles = do
@@ -91,7 +91,7 @@ collectDocumentation = do
 
 collectFunctionsFromFile :: FilePath -> IO [FunctionInfo]
 collectFunctionsFromFile path = do
-    putStrLn $ "Parsing -> " ++ path
+    -- putStrLn $ "Parsing -> " ++ path
     content <- readFile path
     let parseMode = defaultParseMode
             { parseFilename = path
@@ -117,7 +117,6 @@ toFunctionInfo (TypeSig (_, comments) names type') = do
     where
         formatDocs :: [Comment] -> String
         formatDocs = unlines . map (cleanComment . (\(Comment _ _ txt) -> txt))
-
         cleanComment txt = case dropWhile isSpace txt of
             -- '|':rest -> dropWhile isSpace rest
             '>':rest -> dropWhile isSpace rest
@@ -180,7 +179,6 @@ testPath filename = do
             putStrLn $ "Found " ++ show (length functionInfos) ++ " documented functions!"
             putStrLn $ replicate 80 '-' ++ "\n"
             mapM_ printFunctionInfo functionInfos
-
 
 -- writeDocsToFile :: IO ()
 -- writeDocsToFile = do
