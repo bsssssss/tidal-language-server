@@ -24,6 +24,7 @@ library
         Tidal.LSP.Server
       , Tidal.LSP.Handlers
       , Tidal.LSP.Handlers.Hover
+      , Tidal.LSP.Handlers.Completion
       , Tidal.LSP.Document
       , TidalDoc
       , Log

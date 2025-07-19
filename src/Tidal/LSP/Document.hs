@@ -18,8 +18,6 @@ import qualified Data.Text                   as T
 import qualified Language.LSP.Protocol.Types as LSP
 import           Language.LSP.Server
 import           Language.LSP.VFS
-import           Log                         (LogLevel (..), logFile, logToFile,
-                                              lspLogger)
 import           System.Directory            (doesFileExist)
 
 data DocInfo = DocInfo
