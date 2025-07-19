@@ -22,6 +22,7 @@ library
         warnings
     exposed-modules:  
         Tidal.LSP.Server
+      , Tidal.LSP.Handlers
       , TidalDoc
       , Log
     build-depends:  
