@@ -2,8 +2,6 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE NamedFieldPuns        #-}
 
-{-# OPTIONS_GHC -Wno-name-shadowing       #-}
-
 module Tidal.LSP.Document
     ( DocInfo (..)
     , DocResult
@@ -17,7 +15,8 @@ import           Data.Text                   (Text)
 import qualified Data.Text                   as T
 import qualified Language.LSP.Protocol.Types as LSP
 import           Language.LSP.Server
-import           Language.LSP.VFS
+import           Language.LSP.VFS            hiding (line)
+import           Prelude                     hiding (getLine)
 import           System.Directory            (doesFileExist)
 
 data DocInfo = DocInfo
