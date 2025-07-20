@@ -7,7 +7,7 @@ module Tidal.Documentation
     , findTidalFunction
     , testFindFunction
     , collectDocumentation
-    , tidalDocsVar
+    , tidalDocumentation
     , formatTidalFunction
     ) where
 
@@ -28,9 +28,9 @@ import           System.FilePath
 
 -- | Information about a Tidal function including its name, documentation, and type signature
 data FunctionInfo = FunctionInfo
-    { functionName :: String -- ^ The function name
-    , functionDocs :: String -- ^ The Haddock documentation
-    , functionType :: String -- ^ The formatted type signature
+    { functionName          :: String -- ^ The function name
+    , functionDocumentation :: String -- ^ The Haddock documentation
+    , functionType          :: String -- ^ The formatted type signature
     } deriving (Show, Eq)
 
 -- | Get the Tidal source directory from the TIDAL_SRC_PATH environment variable
@@ -73,11 +73,11 @@ tidalExtensions =
     ]
 
 -- | Global TVar containing cached Tidal documentation
-tidalDocsVar :: TVar [FunctionInfo]
-tidalDocsVar = unsafePerformIO $ do
+tidalDocumentation :: TVar [FunctionInfo]
+tidalDocumentation = unsafePerformIO $ do
     docs <- collectDocumentation
     newTVarIO docs
-{-# NOINLINE tidalDocsVar #-}
+{-# NOINLINE tidalDocumentation #-}
 
 -- | Collect documentation from all Tidal source files
 collectDocumentation :: IO [FunctionInfo]
@@ -109,7 +109,7 @@ toFunctionInfo (TypeSig (_, comments) names type') = do
     let name' = unwords $ map prettyPrint names
     Just FunctionInfo
         { functionName = name'
-        , functionDocs = docs
+        , functionDocumentation = docs
         , functionType = "```haskell\n" ++ name' ++ " :: " ++ normalizeWhitespace (prettyPrint type') ++ "\n```"
         }
     where
@@ -130,7 +130,7 @@ normalizeWhitespace = unwords . words
 findTidalFunction :: String -> IO (Maybe FunctionInfo)
 findTidalFunction funcName = do
     -- docs <- collectDocumentation
-    docs <- readTVarIO tidalDocsVar
+    docs <- readTVarIO tidalDocumentation
     return $ lookupFunction funcName docs
 
 -- | Lookup a function in a list of FunctionInfo by name
@@ -142,12 +142,12 @@ formatTidalFunction :: FunctionInfo -> Text
 formatTidalFunction FunctionInfo{..} = T.pack $
             functionType ++ "\n" ++
             "---" ++ "\n\n" ++
-            functionDocs ++ "\n\n"
+            functionDocumentation ++ "\n\n"
 
 printFunctionInfo :: FunctionInfo -> IO ()
 printFunctionInfo FunctionInfo {..} = do
     putStrLn $ functionName ++ " :: " ++ functionType
-    putStrLn $ unlines $ map ("  " ++) $ lines functionDocs
+    putStrLn $ unlines $ map ("  " ++) $ lines functionDocumentation
 
 -- | Test function to find and print documentation for a function
 testFindFunction :: String -> IO ()
@@ -182,4 +182,4 @@ writeDocsToFile = do
             functionName ++ "\n" ++
             replicate (length functionName) '-' ++ "\n" ++
             "Type: " ++ functionType ++ "\n\n" ++
-            functionDocs ++ "\n\n"
+            functionDocumentation ++ "\n\n"
