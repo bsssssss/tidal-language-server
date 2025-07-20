@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE LambdaCase            #-}
 {-# LANGUAGE OverloadedStrings     #-}
 
@@ -7,6 +8,7 @@ module Tidal.Log
     ( logToFile
     , logger
     , logFile
+    , logMessage
     , LogLevel(..)) where
 
 import           Control.Monad.IO.Class        (liftIO)
@@ -15,6 +17,15 @@ import           Data.Time
 import qualified Language.LSP.Protocol.Message as LSP
 import qualified Language.LSP.Protocol.Types   as LSP
 import           Language.LSP.Server
+
+class Monad m => Logger m where
+    logMessage :: String -> LogLevel -> m ()
+
+instance Logger IO where
+    logMessage = logToFile
+
+instance Logger (LspM ()) where
+    logMessage = logger
 
 data LogLevel = Log | Info | Warning | Error
     deriving (Show, Eq, Ord)
