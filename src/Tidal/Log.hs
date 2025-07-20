@@ -3,8 +3,6 @@
 {-# LANGUAGE LambdaCase            #-}
 {-# LANGUAGE OverloadedStrings     #-}
 
-{-# OPTIONS_GHC -Wno-name-shadowing #-}
-
 module Tidal.Log
     ( logToFile
     , logger
@@ -55,9 +53,9 @@ toLspMessageType = \case
 
 getFormatedTime :: IO String
 getFormatedTime = do
-    tz  <- getCurrentTimeZone
-    utc <- getCurrentTime
-    let localtime = utcToLocalTime tz utc
+    tz <- getCurrentTimeZone
+    utcTime <- getCurrentTime
+    let localtime = utcToLocalTime tz utcTime
     return $ formatTime defaultTimeLocale "%H:%M:%S" localtime
 
 logFile :: FilePath
