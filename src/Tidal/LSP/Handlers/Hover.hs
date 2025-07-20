@@ -3,8 +3,6 @@
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE TypeOperators         #-}
 
-{-# OPTIONS_GHC -Wno-name-shadowing       #-}
-
 module Tidal.LSP.Handlers.Hover (hoverResponse, handleHover) where
 
 import           Control.Monad.IO.Class
