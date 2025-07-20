@@ -9,6 +9,7 @@ module Tidal.Documentation
     , collectDocumentation
     , tidalDocumentation
     , formatTidalFunction
+    , writeDocsToFile
     ) where
 
 import           Control.Concurrent.STM      (newTVarIO, readTVarIO)
