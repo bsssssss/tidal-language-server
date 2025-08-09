@@ -1,15 +1,14 @@
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE LambdaCase            #-}
 {-# LANGUAGE OverloadedStrings     #-}
-{-# OPTIONS_GHC -Wno-name-shadowing #-}
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Use isJust" #-}
 
-module Log
+module Tidal.Log
     ( logToFile
-    , lspLogger
+    , logger
     , logFile
+    , logMessage
     , LogLevel(..)) where
 
 import           Control.Monad.IO.Class        (liftIO)
@@ -19,11 +18,20 @@ import qualified Language.LSP.Protocol.Message as LSP
 import qualified Language.LSP.Protocol.Types   as LSP
 import           Language.LSP.Server
 
+class Monad m => Logger m where
+    logMessage :: String -> LogLevel -> m ()
+
+instance Logger IO where
+    logMessage = logToFile
+
+instance Logger (LspM ()) where
+    logMessage = logger
+
 data LogLevel = Log | Info | Warning | Error
     deriving (Show, Eq, Ord)
 
-lspLogger :: String -> LogLevel -> LspM () ()
-lspLogger msg level = do
+logger :: String -> LogLevel -> LspM () ()
+logger msg level = do
     case level of
         Log -> liftIO $ logToFile msg level
         _   -> sendNotification LSP.SMethod_WindowShowMessage $ LSP.ShowMessageParams
@@ -56,9 +64,9 @@ toLspMessageType = \case
 
 getFormatedTime :: IO String
 getFormatedTime = do
-    tz  <- getCurrentTimeZone
-    utc <- getCurrentTime
-    let localtime = utcToLocalTime tz utc
+    tz <- getCurrentTimeZone
+    utcTime <- getCurrentTime
+    let localtime = utcToLocalTime tz utcTime
     return $ formatTime defaultTimeLocale "%H:%M:%S" localtime
 
 logFile :: FilePath

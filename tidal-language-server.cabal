@@ -1,0 +1,85 @@
+cabal-version:   3.0
+name:            tidal-language-server
+version:         0.1.0.0
+--               synopsis:
+--               description:
+license:         MIT
+license-file:    LICENSE
+author:          Bss
+--               maintainer:
+--               copyright:
+category:        Development
+build-type:      Simple
+extra-doc-files: CHANGELOG.md
+--               extra-source-files:
+
+common warnings
+    ghc-options:
+       -Wall
+
+library
+    import:
+        warnings
+    exposed-modules:  
+        Tidal.LSP.Server
+      , Tidal.LSP.Handlers
+      , Tidal.LSP.Handlers.Hover
+      , Tidal.LSP.Handlers.Completion
+      , Tidal.LSP.Document
+      , Tidal.Documentation
+      , Tidal.Log
+    build-depends:  
+        base >=4.8 && <5
+      , directory >= 1.3.7 && < 1.4
+      , filepath >= 1.4.2 && < 1.5
+      , time >= 1.12.2 && < 1.13
+      , fuzzyfind >= 3.0.2 && < 3.1
+      , containers >= 0.6.7 && < 0.7
+      , stm >= 2.5.1 && < 2.6
+      , text >= 2.0.2 && < 2.1
+      , haskell-src-exts >= 1.23.1 && < 1.24
+      , lens >= 5.3.5 && < 5.4
+      , lsp >= 2.7.0 && < 2.8
+      , lsp-types >= 2.3.0 && < 2.4
+    hs-source-dirs:
+       src
+    default-language:
+       Haskell2010
+
+executable tidal-language-server
+    import:
+        warnings
+    main-is:
+        Main.hs
+    build-depends:
+        base >=4.8 && <5
+      , tidal-language-server
+      , directory >= 1.3.7 && < 1.4
+      , filepath >= 1.4.2 && < 1.5
+      , time >= 1.12.2 && < 1.13
+      , fuzzyfind >= 3.0.2 && < 3.1
+      , containers >= 0.6.7 && < 0.7
+      , stm >= 2.5.1 && < 2.6
+      , text >= 2.0.2 && < 2.1
+      , haskell-src-exts >= 1.23.1 && < 1.24
+      , lens >= 5.3.5 && < 5.4
+      , lsp >= 2.7.0 && < 2.8
+      , lsp-types >= 2.3.0 && < 2.4
+    hs-source-dirs:
+       app
+    default-language:
+       Haskell2010
+
+test-suite tidal-language-server-test
+    import:
+        warnings
+    default-language:
+        Haskell2010
+    type:
+        exitcode-stdio-1.0
+    hs-source-dirs:
+        test
+    main-is:
+        Main.hs
+    build-depends:
+        base >=4.8 && <5

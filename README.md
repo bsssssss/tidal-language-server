@@ -25,31 +25,35 @@ Clone the Tidal Cycles repository:
 git clone https://github.com/tidalcycles/Tidal.git
 ```
 
-### 2. Set TIDAL_PATH Environment Variable
+### 2. Set TIDAL_SRC_PATH Environment Variable
 
-The language server requires the `TIDAL_PATH` environment variable to point to your Tidal Cycles source directory.
+The language server requires the `TIDAL_SRC_PATH` environment variable to point to your Tidal Cycles source directory.
 
 ```bash
-export TIDAL_PATH=/path/to/your/Tidal
+export TIDAL_SRC_PATH=/path/to/your/Tidal
 ```
 
 ## Building
 
-### Using Cabal (Recommended)
+### Using Cabal
 
 ```bash
+# Refresh package index
+cabal update
+
 # Install dependencies and build
 cabal build
-
-# Install the executable
-cabal install
 ```
 
 ## Installation
 
-After building, you should have info about where it symlinked.
-For me it's `~/.local/bin/tidal-ls`
+```bash
+# Install the executable
+cabal install
+```
 
+This should tell you where the executable was symlinked.
+On my system (osx Sequoia 15.5) it's `~/.local/bin/tidal-language-server`.
 Make sure the installation directory is in your `PATH`.
 
 ## Verification
@@ -57,16 +61,14 @@ Make sure the installation directory is in your `PATH`.
 To verify the installation:
 
 ```bash
-# Check if tidal-ls is available
-which tidal-ls
+# Check if tidal-language-server is available
+which tidal-language-server
 
 # Verify TIDAL_PATH is set correctly
-echo $TIDAL_PATH
+echo $TIDAL_SRC_PATH
 ```
 
-The language server should start without errors when called by your editor's LSP client.
-
-## Use in Neovim 
+## Use in Neovim
 
 First of all, your setup should be able to recognize tidal filetype. You can do
 this by installing [this plugin](https://github.com/tidalcycles/vim-tidal)
@@ -81,7 +83,7 @@ vim.api.nvim_create_autocmd("FileType", {
 		-- local logfile = "/tmp/tidal_ls.log"
 		local client_id = vim.lsp.start({
 			name = "tidal_ls",
-			cmd = { vim.fn.expand("~/.local/bin/tidal-ls") },
+			cmd = { vim.fn.expand("~/.local/bin/tidal-language-server") },
 			handlers = {
 				["window/showMessage"] = function(_, result, ctx)
 					vim.notify("LSP Message: " .. result.message, vim.log.levels.INFO, { title = "Tidal LSP" })
@@ -99,4 +101,3 @@ vim.api.nvim_create_autocmd("FileType", {
 	end,
 })
 ```
-
