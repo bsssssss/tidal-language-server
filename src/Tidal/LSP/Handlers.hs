@@ -16,13 +16,14 @@ handlers :: Handlers (LspM ())
 handlers = do
     mconcat
         [ notificationHandler LSP.SMethod_Initialized $ \_not -> do
-            logMessage "Language server initialized" Info
+            -- logMessage "Language server initialized" Info
+            pure ()
 
         , notificationHandler LSP.SMethod_TextDocumentDidOpen $ \_not -> do
             let LSP.TNotificationMessage _ _ params = _not  -- Note the T prefix
                 LSP.DidOpenTextDocumentParams {_textDocument} = params  -- This extracts the params
-            logMessage "Got didOpen notification" Info
-            logMessage ("TextDocument: " ++ show _textDocument) Log
+            -- logMessage "Got didOpen notification" Info
+            -- logMessage ("TextDocument: " ++ show _textDocument) Log
             sendNotification LSP.SMethod_WindowShowMessage $ LSP.ShowMessageParams
                 { _type_ = LSP.MessageType_Info
                 , _message = "Hello Tidalist :)"
